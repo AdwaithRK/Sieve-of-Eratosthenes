@@ -1,4 +1,6 @@
 #include <bits/stdc++.h>
+#include <stdlib.h>
+#include <iostream>
 #include <math.h>
 using namespace std;
 
@@ -37,6 +39,12 @@ vector<int> *segmentedSieve(int low, int high, vector<int> possiblePrimeFactors)
     bool result[high - low + 1];
     memset(result, true, sizeof(result));
 
+    if(low == 1) result[0] = false;
+    if(low == 0){
+        result[low] = false;
+        result[low+1] = false;
+    }
+
     for (auto i : possiblePrimeFactors)
     {
 
@@ -45,19 +53,22 @@ vector<int> *segmentedSieve(int low, int high, vector<int> possiblePrimeFactors)
         if (base < low)
             base += i;
 
+
         for (int k = base; k <= high; k += i)
         {
-            if (k % i == 0)
-                result[k - low] = false;
+            result[k - low] = false;
         }
+
+        if (base == i)
+            result[base - low] = true;
     }
 
     vector<int> *primeInRange = new vector<int>();
 
-    for (int i = 0; i < high - low + 1; i++)
+    for (int k = low; k <= high; k++)
     {
-        if (result[i])
-            primeInRange->push_back(i + low);
+        if (result[k - low])
+            primeInRange->push_back(k);
     }
 
     return primeInRange;
@@ -65,11 +76,24 @@ vector<int> *segmentedSieve(int low, int high, vector<int> possiblePrimeFactors)
 
 int main()
 {
-    vector<int> *results = sevie(sqrt(50));
-    vector<int> *primeInRange = segmentedSieve(10, 50, *results);
+    vector<int> *results = sevie(sqrt(1000000));
+    vector<int> *primeInRange = segmentedSieve(1, 1000000, *results);
+    vector<int> answer = {-1, -1};
 
-    
+    if (primeInRange->size() == 0)
+        return 0;
 
+    int distance_btw_primes = INT_MAX;
+
+    for (int i = 0; i < primeInRange->size() - 1; i++)
+    {
+        if (primeInRange[0][i + 1] - primeInRange[0][i] < distance_btw_primes)
+        {
+            distance_btw_primes = primeInRange[0][i + 1] - primeInRange[0][i];
+            answer[0] = primeInRange[0][i];
+            answer[1] = primeInRange[0][i + 1];
+        }
+    }
 
     return 0;
 }
